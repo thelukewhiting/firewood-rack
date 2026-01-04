@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firewood Rack - 3D Model</title>
+  <style>
+    body { margin: 0; background: #1a1a1a; overflow: hidden; }
+    canvas { display: block; }
+    #info {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 250px;
+    }
+    #info h1 { margin: 0 0 10px 0; font-size: 20px; font-weight: 400; }
+    #info p { margin: 5px 0; color: #888; }
+    #info .dim { color: #fff; }
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #666;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <h1>Firewood Rack</h1>
+    <p>Width: <span class="dim">30"</span></p>
+    <p>Depth: <span class="dim">16"</span></p>
+    <p>Height: <span class="dim">60"</span></p>
+    <p>Sections: <span class="dim">4</span></p>
+    <p>Material: <span class="dim">1.5" square tube</span></p>
+    <p>Style: <span class="dim">Diagonal shelf minimalist</span></p>
+    <p>Stability: <span class="dim">Wall mount + bottom braces</span></p>
+  </div>
+  <div id="controls">Click and drag to rotate • Scroll to zoom</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script>
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(70, 50, 70);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    // Controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 30, 0);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(50, 100, 50);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    scene.add(directionalLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    fillLight.position.set(-50, 50, -50);
+    scene.add(fillLight);
+
+    // Material - matte black steel
+    const steelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x2a2a2a,
+      roughness: 0.7,
+      metalness: 0.8
+    });
+
+    // Dimensions in inches
+    const WIDTH = 30;
+    const DEPTH = 16;
+    const HEIGHT = 60;
+    const FOOT_HEIGHT = 6;
+    const TUBE_SIZE = 1.5;
+    const NUM_SECTIONS = 4;
+    const USABLE_HEIGHT = HEIGHT - FOOT_HEIGHT - TUBE_SIZE * 2;  // between bottom and top rails
+    const SECTION_HEIGHT = USABLE_HEIGHT / NUM_SECTIONS;
+
+    // Helper function to create a box (steel tube)
+    function createTube(width, height, depth) {
+      const geometry = new THREE.BoxGeometry(width, height, depth);
+      const mesh = new THREE.Mesh(geometry, steelMaterial);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    // Create the rack group
+    const rack = new THREE.Group();
+
+    // Corner post positions (x, z)
+    const corners = [
+      [-WIDTH/2 + TUBE_SIZE/2, -DEPTH/2 + TUBE_SIZE/2],  // back left
+      [WIDTH/2 - TUBE_SIZE/2, -DEPTH/2 + TUBE_SIZE/2],   // back right
+      [-WIDTH/2 + TUBE_SIZE/2, DEPTH/2 - TUBE_SIZE/2],   // front left
+      [WIDTH/2 - TUBE_SIZE/2, DEPTH/2 - TUBE_SIZE/2]     // front right
+    ];
+
+    // Vertical posts (4 corners) - full height from feet to top
+    const postHeight = HEIGHT - FOOT_HEIGHT;
+    corners.forEach(pos => {
+      const post = createTube(TUBE_SIZE, postHeight, TUBE_SIZE);
+      post.position.set(pos[0], FOOT_HEIGHT + postHeight/2, pos[1]);
+      rack.add(post);
+    });
+
+    // Feet - all 4 corners with vertical legs
+    corners.forEach(pos => {
+      // Vertical leg - square tube to floor
+      const leg = createTube(TUBE_SIZE, FOOT_HEIGHT, TUBE_SIZE);
+      leg.position.set(pos[0], FOOT_HEIGHT/2, pos[1]);
+      rack.add(leg);
+    });
+
+    // Front-to-back support braces at bottom (connects front and back legs)
+    const braceX = [-WIDTH/2 + TUBE_SIZE/2, WIDTH/2 - TUBE_SIZE/2];
+    braceX.forEach(xPos => {
+      const brace = createTube(TUBE_SIZE, TUBE_SIZE, DEPTH - TUBE_SIZE * 2);
+      brace.position.set(xPos, TUBE_SIZE/2, 0);
+      rack.add(brace);
+    });
+
+    // Wall mount brackets on back top rail
+    const bracketWidth = 3;
+    const bracketHeight = 2;
+    const bracketDepth = 0.25;
+    const bracketPositions = [-WIDTH/4, WIDTH/4];  // two brackets spaced apart
+
+    bracketPositions.forEach(xPos => {
+      // Vertical part of L-bracket
+      const bracket = createTube(bracketWidth, bracketHeight, bracketDepth);
+      bracket.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 - bracketDepth/2);
+      rack.add(bracket);
+
+      // Mounting hole (visual only - small cylinder)
+      const holeGeo = new THREE.CylinderGeometry(0.25, 0.25, bracketDepth + 0.1, 16);
+      const holeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+      const hole = new THREE.Mesh(holeGeo, holeMat);
+      hole.rotation.x = Math.PI / 2;
+      hole.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 - bracketDepth/2);
+      rack.add(hole);
+    });
+
+    // Top horizontal frame - flush with post tops
+    // Rails fit between corner posts (posts are the corners, rails connect them)
+    const topY = HEIGHT - TUBE_SIZE/2;
+    const fbRailWidth = WIDTH - TUBE_SIZE * 2;   // front/back rails fit between left/right posts
+    const sideRailDepth = DEPTH - TUBE_SIZE * 2; // side rails fit between front/back posts
+
+    // Top front rail
+    const topFront = createTube(fbRailWidth, TUBE_SIZE, TUBE_SIZE);
+    topFront.position.set(0, topY, DEPTH/2 - TUBE_SIZE/2);
+    rack.add(topFront);
+
+    // Top back rail
+    const topBack = createTube(fbRailWidth, TUBE_SIZE, TUBE_SIZE);
+    topBack.position.set(0, topY, -DEPTH/2 + TUBE_SIZE/2);
+    rack.add(topBack);
+
+    // Top left rail
+    const topLeft = createTube(TUBE_SIZE, TUBE_SIZE, sideRailDepth);
+    topLeft.position.set(-WIDTH/2 + TUBE_SIZE/2, topY, 0);
+    rack.add(topLeft);
+
+    // Top right rail
+    const topRight = createTube(TUBE_SIZE, TUBE_SIZE, sideRailDepth);
+    topRight.position.set(WIDTH/2 - TUBE_SIZE/2, topY, 0);
+    rack.add(topRight);
+
+    // Bottom horizontal frame
+    const bottomY = FOOT_HEIGHT + TUBE_SIZE/2;
+
+    // Bottom front rail
+    const bottomFront = createTube(fbRailWidth, TUBE_SIZE, TUBE_SIZE);
+    bottomFront.position.set(0, bottomY, DEPTH/2 - TUBE_SIZE/2);
+    rack.add(bottomFront);
+
+    // Bottom back rail
+    const bottomBack = createTube(fbRailWidth, TUBE_SIZE, TUBE_SIZE);
+    bottomBack.position.set(0, bottomY, -DEPTH/2 + TUBE_SIZE/2);
+    rack.add(bottomBack);
+
+    // Bottom left rail
+    const bottomLeft = createTube(TUBE_SIZE, TUBE_SIZE, sideRailDepth);
+    bottomLeft.position.set(-WIDTH/2 + TUBE_SIZE/2, bottomY, 0);
+    rack.add(bottomLeft);
+
+    // Bottom right rail
+    const bottomRight = createTube(TUBE_SIZE, TUBE_SIZE, sideRailDepth);
+    bottomRight.position.set(WIDTH/2 - TUBE_SIZE/2, bottomY, 0);
+    rack.add(bottomRight);
+
+    // Diagonal shelf bars - these ARE the shelves
+    // Diagonals span from post center to post center (overlapping into posts like real welds)
+    const diagWidth = WIDTH - TUBE_SIZE;  // between post centers
+    const diagHeight = SECTION_HEIGHT;     // full section height
+    const diagLength = Math.sqrt(diagWidth * diagWidth + diagHeight * diagHeight);
+    const angle = Math.atan2(diagHeight, diagWidth);
+
+    for (let section = 0; section < NUM_SECTIONS; section++) {
+      // Section spans from one horizontal to the next
+      const sectionBottomY = FOOT_HEIGHT + TUBE_SIZE + section * SECTION_HEIGHT;
+      const sectionTopY = sectionBottomY + SECTION_HEIGHT;
+      const centerY = (sectionBottomY + sectionTopY) / 2;
+
+      // Alternate direction for each section
+      const direction = section % 2 === 0 ? 1 : -1;
+
+      // Front diagonal
+      const frontDiag = createTube(diagLength, TUBE_SIZE, TUBE_SIZE);
+      frontDiag.position.set(0, centerY, DEPTH/2 - TUBE_SIZE/2);
+      frontDiag.rotation.z = direction * angle;
+      rack.add(frontDiag);
+
+      // Back diagonal - SAME direction as front
+      const backDiag = createTube(diagLength, TUBE_SIZE, TUBE_SIZE);
+      backDiag.position.set(0, centerY, -DEPTH/2 + TUBE_SIZE/2);
+      backDiag.rotation.z = direction * angle;
+      rack.add(backDiag);
+    }
+
+    scene.add(rack);
+
+    // Ground plane
+    const groundGeo = new THREE.PlaneGeometry(200, 200);
+    const groundMat = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.9
+    });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Grid helper
+    const gridHelper = new THREE.GridHelper(100, 100, 0x333333, 0x222222);
+    gridHelper.position.y = 0.1;
+    scene.add(gridHelper);
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
