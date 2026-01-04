@@ -16,6 +16,30 @@
       padding: 20px;
       border-radius: 8px;
       max-width: 250px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+    }
+    #info table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 12px;
+    }
+    #info th, #info td {
+      text-align: left;
+      padding: 4px 8px;
+      border-bottom: 1px solid #444;
+    }
+    #info th {
+      color: #888;
+    }
+    #info h2 {
+      font-size: 14px;
+      font-weight: 400;
+      margin: 15px 0 5px 0;
+      color: #888;
+      border-top: 1px solid #444;
+      padding-top: 10px;
     }
     #info h1 { margin: 0 0 10px 0; font-size: 20px; font-weight: 400; }
     #info p { margin: 5px 0; color: #888; }
@@ -41,6 +65,19 @@
     <p>Material: <span class="dim">1.5" square tube</span></p>
     <p>Style: <span class="dim">Diagonal shelf minimalist</span></p>
     <p>Stability: <span class="dim">Wall mount + bottom braces</span></p>
+
+    <h2>Cut List (1.5" square tube)</h2>
+    <table>
+      <tr><th>Qty</th><th>Length</th><th>Part</th></tr>
+      <tr><td>4</td><td>54"</td><td>Corner posts</td></tr>
+      <tr><td>4</td><td>6"</td><td>Legs</td></tr>
+      <tr><td>4</td><td>27"</td><td>Front/back rails</td></tr>
+      <tr><td>4</td><td>13"</td><td>Side rails</td></tr>
+      <tr><td>2</td><td>13"</td><td>Bottom braces</td></tr>
+      <tr><td>8</td><td>31.25"</td><td>Diagonal bars</td></tr>
+    </table>
+    <p>Wall mounts: <span class="dim">2x 3"x2" plates</span></p>
+    <p>Total tube: <span class="dim">~60 ft</span></p>
   </div>
   <div id="controls">Click and drag to rotate • Scroll to zoom</div>
 
