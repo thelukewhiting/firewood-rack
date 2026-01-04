@@ -179,24 +179,31 @@
       rack.add(brace);
     });
 
-    // Wall mount brackets on back top rail
+    // Wall mount brackets on back top rail (L-brackets)
     const bracketWidth = 3;
     const bracketHeight = 2;
-    const bracketDepth = 0.25;
+    const bracketThickness = 0.25;
+    const bracketTabDepth = 1.5;  // horizontal tab that welds to rail
     const bracketPositions = [-WIDTH/4, WIDTH/4];  // two brackets spaced apart
 
     bracketPositions.forEach(xPos => {
-      // Vertical part of L-bracket
-      const bracket = createTube(bracketWidth, bracketHeight, bracketDepth);
-      bracket.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 - bracketDepth/2);
-      rack.add(bracket);
+      // Vertical plate (mounts to wall)
+      const vertPlate = createTube(bracketWidth, bracketHeight, bracketThickness);
+      vertPlate.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 + TUBE_SIZE/2 - bracketTabDepth - bracketThickness/2);
+      rack.add(vertPlate);
 
-      // Mounting hole (visual only - small cylinder)
-      const holeGeo = new THREE.CylinderGeometry(0.25, 0.25, bracketDepth + 0.1, 16);
-      const holeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+      // Horizontal tab (welds to top of back rail)
+      const horizTab = createTube(bracketWidth, bracketThickness, bracketTabDepth);
+      horizTab.position.set(xPos, HEIGHT - bracketThickness/2, -DEPTH/2 + TUBE_SIZE/2 - bracketTabDepth/2);
+      rack.add(horizTab);
+
+      // Screw hole (dark circle on vertical plate)
+      const holeRadius = 0.3;
+      const holeGeo = new THREE.CylinderGeometry(holeRadius, holeRadius, bracketThickness + 0.1, 16);
+      const holeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
       const hole = new THREE.Mesh(holeGeo, holeMat);
       hole.rotation.x = Math.PI / 2;
-      hole.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 - bracketDepth/2);
+      hole.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 + TUBE_SIZE/2 - bracketTabDepth - bracketThickness/2);
       rack.add(hole);
     });
 
