@@ -2,7 +2,7 @@
 
 3D design for a welded steel firewood rack.
 
-**[View Interactive 3D Model](index.html)**
+**[View Interactive 3D Model](https://raw.githack.com/thelukewhiting/firewood-rack/main/index.html)**
 
 ## Specs
 
