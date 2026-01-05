@@ -58,7 +58,7 @@
 <body>
   <div id="info">
     <h1>Firewood Rack</h1>
-    <p>Width: <span class="dim">30"</span></p>
+    <p>Width: <span class="dim">42"</span></p>
     <p>Depth: <span class="dim">16"</span></p>
     <p>Height: <span class="dim">60"</span></p>
     <p>Sections: <span class="dim">4</span></p>
@@ -71,13 +71,13 @@
       <tr><th>Qty</th><th>Length</th><th>Part</th></tr>
       <tr><td>4</td><td>54"</td><td>Corner posts</td></tr>
       <tr><td>4</td><td>6"</td><td>Legs</td></tr>
-      <tr><td>4</td><td>27"</td><td>Front/back rails</td></tr>
+      <tr><td>4</td><td>39"</td><td>Front/back rails</td></tr>
       <tr><td>4</td><td>13"</td><td>Side rails</td></tr>
       <tr><td>2</td><td>13"</td><td>Bottom braces</td></tr>
-      <tr><td>8</td><td>31.25"</td><td>Diagonal bars</td></tr>
+      <tr><td>8</td><td>42.5"</td><td>Diagonal bars</td></tr>
     </table>
     <p>Wall mounts: <span class="dim">2x 3"x2" plates</span></p>
-    <p>Total tube: <span class="dim">~60 ft</span></p>
+    <p>Total tube: <span class="dim">~68 ft</span></p>
   </div>
   <div id="controls">Click and drag to rotate • Scroll to zoom</div>
 
@@ -126,7 +126,7 @@
     });
 
     // Dimensions in inches
-    const WIDTH = 30;
+    const WIDTH = 42;
     const DEPTH = 16;
     const HEIGHT = 60;
     const FOOT_HEIGHT = 6;
@@ -303,6 +303,11 @@
     const gridHelper = new THREE.GridHelper(100, 100, 0x333333, 0x222222);
     gridHelper.position.y = 0.1;
     scene.add(gridHelper);
+
+    // Expose for external access (screenshots)
+    window.scene = scene;
+    window.renderer = renderer;
+    window.camera = camera;
 
     // Animation loop
     function animate() {
