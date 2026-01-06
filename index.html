@@ -3,7 +3,7 @@
 <head>
   <title>Firewood Rack - 3D Model</title>
   <style>
-    body { margin: 0; background: #1a1a1a; overflow: hidden; }
+    body { margin: 0; background: #d0d0d0; overflow: hidden; }
     canvas { display: block; }
     #info {
       position: absolute;
@@ -86,7 +86,7 @@
   <script>
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a1a);
+    scene.background = new THREE.Color(0xd0d0d0);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(70, 50, 70);
@@ -290,7 +290,7 @@
     // Ground plane
     const groundGeo = new THREE.PlaneGeometry(200, 200);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x111111,
+      color: 0x999999,
       roughness: 0.9
     });
     const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -300,7 +300,7 @@
     scene.add(ground);
 
     // Grid helper
-    const gridHelper = new THREE.GridHelper(100, 100, 0x333333, 0x222222);
+    const gridHelper = new THREE.GridHelper(100, 100, 0x888888, 0xaaaaaa);
     gridHelper.position.y = 0.1;
     scene.add(gridHelper);
 
