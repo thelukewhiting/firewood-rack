@@ -186,16 +186,21 @@
     const bracketTabDepth = 1.5;  // horizontal tab that welds to rail
     const bracketPositions = [-WIDTH/4, WIDTH/4];  // two brackets spaced apart
 
-    bracketPositions.forEach(xPos => {
-      // Vertical plate (mounts to wall)
-      const vertPlate = createTube(bracketWidth, bracketHeight, bracketThickness);
-      vertPlate.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 + TUBE_SIZE/2 - bracketTabDepth - bracketThickness/2);
-      rack.add(vertPlate);
+    // Back rail back edge is at Z = -DEPTH/2 + TUBE_SIZE/2 - TUBE_SIZE/2 = -DEPTH/2
+    const railBackEdge = -DEPTH/2;
 
-      // Horizontal tab (welds to top of back rail)
+    bracketPositions.forEach(xPos => {
+      // Horizontal tab sits on top of back rail, extending backward
       const horizTab = createTube(bracketWidth, bracketThickness, bracketTabDepth);
-      horizTab.position.set(xPos, HEIGHT - bracketThickness/2, -DEPTH/2 + TUBE_SIZE/2 - bracketTabDepth/2);
+      const tabZ = railBackEdge - bracketTabDepth/2;
+      horizTab.position.set(xPos, HEIGHT + bracketThickness/2, tabZ);
       rack.add(horizTab);
+
+      // Vertical plate at back of horizontal tab, extending downward
+      const vertPlate = createTube(bracketWidth, bracketHeight, bracketThickness);
+      const plateZ = railBackEdge - bracketTabDepth - bracketThickness/2;
+      vertPlate.position.set(xPos, HEIGHT - bracketHeight/2 + bracketThickness, plateZ);
+      rack.add(vertPlate);
 
       // Screw hole (dark circle on vertical plate)
       const holeRadius = 0.3;
@@ -203,7 +208,7 @@
       const holeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
       const hole = new THREE.Mesh(holeGeo, holeMat);
       hole.rotation.x = Math.PI / 2;
-      hole.position.set(xPos, HEIGHT - TUBE_SIZE - bracketHeight/2, -DEPTH/2 + TUBE_SIZE/2 - bracketTabDepth - bracketThickness/2);
+      hole.position.set(xPos, HEIGHT - bracketHeight/2 + bracketThickness, plateZ);
       rack.add(hole);
     });
 
